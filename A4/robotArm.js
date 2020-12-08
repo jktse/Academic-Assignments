@@ -6,6 +6,7 @@ var NumVertices = 36; //(6 faces)(2 triangles/face)(3 vertices/triangle)
 
 var points = [];
 var colors = [];
+var topView = false;
 
 var vertices = [
     vec4( -0.5, -0.5,  0.5, 1.0 ),
@@ -45,7 +46,7 @@ var UPPER_ARM_WIDTH  = 0.3;
 
 // Shader transformation matrices
 
-var modelViewMatrix, projectionMatrix;
+var modelViewMatrix, projectionMatrix, lookMatrix;
 
 // Buffers
 var vColor, vPosition;
@@ -61,7 +62,7 @@ var theta= [ 0, 0, 0];
 
 var angle = 0;
 
-var modelViewMatrixLoc;
+var modelViewMatrixLoc, projectionMatrixLoc;
 
 var cylinderVBuffer, cylinderCBuffer;
 var cubeVBuffer, cubeCBuffer;
@@ -121,13 +122,6 @@ window.onload = function init() {
     gl.clearColor( 1.0, 1.0, 1.0, 1.0 );
     gl.enable( gl.DEPTH_TEST );
 
-    //
-    //  Load shaders and initialize attribute buffers
-    //
-    program = initShaders( gl, "vertex-shader", "fragment-shader" );
-
-    gl.useProgram( program );
-
     colorCube();
 
     // Load shaders and use the resulting shader program
@@ -175,9 +169,8 @@ window.onload = function init() {
     };
 
     modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
+    projectionMatrixLoc = gl.getUniformLocation(program, "projectionMatrix");
 
-    projectionMatrix = ortho(-10, 10, -10, 10, -10, 10);
-    gl.uniformMatrix4fv( gl.getUniformLocation(program, "projectionMatrix"),  false, flatten(projectionMatrix) );
     render();
 }
 
@@ -220,6 +213,16 @@ function lowerArm()
 
 var render = function() {
 
+    if(topView){
+        lookMatrix = rotateX(-90);
+        lookMatrix = inverse4(lookMatrix);
+    }else{
+        lookMatrix = mat4();
+    }
+    projectionMatrix = ortho(-8, 8, -8, 8, -8, 8);
+    gl.uniformMatrix4fv(projectionMatrixLoc ,  false, flatten(mult(projectionMatrix,lookMatrix)) );
+
+    gl.clearColor(0.75, 0.85, 0.8, 1.0);
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
     modelViewMatrix = rotate(theta[Base], 0, 1, 0 );
     
@@ -243,6 +246,13 @@ var render = function() {
     modelViewMatrix  = mult(modelViewMatrix, rotate(theta[UpperArm], 0, 0, 1) );
     upperArm();
 
-    requestAnimationFrame(render);
+    requestAnimFrame(render);
 }
-requestAnimationFrame(render);
+
+var changeView = function(){
+    if(topView){
+        topView = false;
+    }else{
+        topView = true;
+    }
+}
