@@ -6,6 +6,9 @@ var NumVertices = 36; //(6 faces)(2 triangles/face)(3 vertices/triangle)
 
 var points = [];
 var colors = [];
+var normPoints = [];
+
+var topView = false;
 
 var vertices = [
     vec4( -0.5, -0.5,  0.5, 1.0 ),
@@ -18,6 +21,52 @@ var vertices = [
     vec4(  0.5, -0.5, -0.5, 1.0 )
 ];
 
+var cubeFaceNormals = [
+  [ 0, 0, 1],
+  [ 1, 0, 0],
+  [ 0, -1, 0],
+  [ 0, 1, 0],
+  [ 0, 0, -1],
+  [ -1 , 0, 0]
+];
+
+var cubeNormalElements = [
+  0, 0, 0,
+  0, 0, 0,
+  1, 1, 1,
+  1, 1, 1,
+  2, 2, 2,
+  2, 2, 2,
+  3, 3, 3,
+  3, 3, 3,
+  4, 4, 4,
+  4, 4, 4,
+  5, 5, 5,
+  5, 5, 5
+
+];
+
+var cubeElements = [
+    1, 0, 3,
+    3, 2, 1,
+
+    2, 3, 7,
+    7, 6, 2,
+
+    3, 0, 4,
+    4, 7, 3,
+
+    6, 5, 1,
+    1, 2, 6,
+
+    4, 5, 6,
+    6, 7, 4,
+
+    5, 4, 0,
+    0, 1, 5
+];
+
+
 // RGBA colors
 var vertexColors = [
     vec4( 0.0, 0.0, 0.0, 1.0 ),  // black
@@ -26,18 +75,19 @@ var vertexColors = [
     vec4( 0.0, 1.0, 0.0, 1.0 ),  // green
     vec4( 0.0, 0.0, 1.0, 1.0 ),  // blue
     vec4( 1.0, 0.0, 1.0, 1.0 ),  // magenta
-    vec4( 0.0, 1.0, 1.0, 1.0 ),  // white
+    vec4( 0.5, 0.5, 0.5, 1.0 ),  // white
     vec4( 0.0, 1.0, 1.0, 1.0 )   // cyan
 ];
 
-var cylinderData = cylinder(36,1,true);
-var cylinderVerts = cylinderData.TriangleVertices;
+var cylinderData = cylinder(72, 10, true);
+var cylinderPoints = cylinderData.TriangleVertices;
 var cylinderColor = cylinderData.TriangleVertexColors;
-var cylinderNormals = cylinderData.TriangleNormals;
+var cylinderNormal = cylinderData.TriangleNormals;
+
 // Parameters controlling the size of the Robot's arm
 
-var BASE_HEIGHT      = 0.5;
-var BASE_WIDTH       = 1.0;
+var BASE_HEIGHT      = 2.0;
+var BASE_WIDTH       = 2.0;
 var LOWER_ARM_HEIGHT = 2.0;
 var LOWER_ARM_WIDTH  = 0.3;
 var UPPER_ARM_HEIGHT = 2.0;
@@ -45,10 +95,7 @@ var UPPER_ARM_WIDTH  = 0.3;
 
 // Shader transformation matrices
 
-var modelViewMatrix, projectionMatrix;
-
-// Buffers
-var vColor, vPosition;
+var modelViewMatrix, projectionMatrix, normMatrix;
 
 // Array of rotation angles (in degrees) for each rotation axis
 
@@ -62,9 +109,22 @@ var theta= [ 0, 0, 0];
 var angle = 0;
 
 var modelViewMatrixLoc;
+var normMatrixLoc;
+var diffuseColorLoc;
+var lightPositionLoc;
 
-var cylinderVBuffer, cylinderCBuffer;
-var cubeVBuffer, cubeCBuffer;
+var vCylinderBuffer, nCylinderBuffer, cCylinderBuffer;
+var vCylinderLoc, nCylinderLoc, cCylinderLoc;
+
+//Used for PhongShading
+var KaVal = 0.5;
+var KdVal = 1.0;
+var KsVal = 1.0;
+var shininess = 1.0;
+var lightPosition = [1.0, 1.0, 5.0];
+var ambientColor = vec4(0.0, 0.0, 0.0, 1.0);
+var specularColor = vec4(1.0, 1.0, 1.0, 1.0);
+
 
 //----------------------------------------------------------------------------
 
@@ -130,38 +190,39 @@ window.onload = function init() {
 
     colorCube();
 
+    var i;
+    for ( var i = 0; i < cubeElements.length; i++ ) {
+        normPoints.push(cubeFaceNormals[cubeNormalElements[i]]);
+    }
+    console.log(normPoints);
+
     // Load shaders and use the resulting shader program
 
     program = initShaders( gl, "vertex-shader", "fragment-shader" );
     gl.useProgram( program );
 
-    // Create and initialize  buffer objects
+    // Create and intialize buffers
 
-    // Cube Buffer
-    cubeVBuffer = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, cubeVBuffer );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW );
+    // Cylinders
 
-    cubeCBuffer = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, cubeCBuffer );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(colors), gl.STATIC_DRAW );
+    // Vertices
+    vCylinderBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vCylinderBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW);
+    vCylinderLoc = gl.getAttribLocation(program, "vPosition")
 
-    // Cylinder Buffer
-    cylinderVBuffer = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, cylinderVBuffer );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(cylinderVerts), gl.STATIC_DRAW );
+    // Normals
+    nCylinderBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, nCylinderBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(normPoints), gl.STATIC_DRAW);
+    nCylinderLoc = gl.getAttribLocation(program, "normal")
 
-    cylinderCBuffer = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, cylinderCBuffer );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(cylinderColor), gl.STATIC_DRAW );
+    // Colors
+    cCylinderBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, cCylinderBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(colors), gl.STATIC_DRAW);
+    cCylinderLoc = gl.getAttribLocation(program, "vColor")
 
-
-
-    vColor = gl.getAttribLocation( program, "vColor" );
-    gl.enableVertexAttribArray( vColor );
-
-    vPosition = gl.getAttribLocation( program, "vPosition" );
-    gl.enableVertexAttribArray( vPosition );
 
 
     document.getElementById("slider1").onchange = function(event) {
@@ -174,10 +235,30 @@ window.onload = function init() {
          theta[2] =  event.target.value;
     };
 
+    document.getElementById("lightx").onchange = function(event) {
+        lightPosition[0] = event.target.value;
+    };
+    document.getElementById("lighty").onchange = function(event) {
+         lightPosition[1] = event.target.value;
+    };
+    document.getElementById("lightz").onchange = function(event) {
+         lightPosition[2] =  event.target.value;
+    };
+
+
+    // Get and setup uniformVariables
     modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
 
-    projectionMatrix = ortho(-10, 10, -10, 10, -10, 10);
-    gl.uniformMatrix4fv( gl.getUniformLocation(program, "projectionMatrix"),  false, flatten(projectionMatrix) );
+    projectionMatrix = ortho(-5, 5, -5, 5, -5, 5);
+
+    normMatrix = mat4();
+
+    normMatrixLoc = gl.getUniformLocation(program, "normalMatrix")
+    
+    
+
+
+    modelViewMatrix = rotate(theta[Base], 0, 1, 0);
     render();
 }
 
@@ -185,11 +266,27 @@ window.onload = function init() {
 
 
 function base() {
+
+    // Position
+    gl.enableVertexAttribArray(vCylinderLoc);
+    gl.bindBuffer(gl.ARRAY_BUFFER, vCylinderBuffer);
+    gl.vertexAttribPointer(vCylinderLoc, 4, gl.FLOAT, false, 0, 0);
+    // Normal
+    gl.enableVertexAttribArray(nCylinderLoc);
+    gl.bindBuffer(gl.ARRAY_BUFFER, nCylinderBuffer);
+    gl.vertexAttribPointer(nCylinderLoc, 3, gl.FLOAT, false, 0, 0);
+    // Color
+    gl.enableVertexAttribArray(cCylinderLoc);
+    gl.bindBuffer(gl.ARRAY_BUFFER, cCylinderBuffer);
+    gl.vertexAttribPointer(cCylinderLoc, 3, gl.FLOAT, false, 4 * Float32Array.BYTES_PER_ELEMENT, 0);
+
+
     var s = scale4(BASE_WIDTH, BASE_HEIGHT, BASE_WIDTH);
     var instanceMatrix = mult( translate( 0.0, 0.5 * BASE_HEIGHT, 0.0 ), s);
     var t = mult(modelViewMatrix, instanceMatrix);
     gl.uniformMatrix4fv(modelViewMatrixLoc,  false, flatten(t) );
-    gl.drawArrays( gl.TRIANGLES, 0, cylinderVerts.length );
+
+    gl.drawArrays( gl.TRIANGLES, 0, cylinderPoints.length );
 }
 
 //----------------------------------------------------------------------------
@@ -216,33 +313,56 @@ function lowerArm()
 }
 
 //----------------------------------------------------------------------------
-
-
+var rotationMatrix = mat4();
+rotationMatrix = mult(rotationMatrix, rotateY(-0.15));
+//rotationMatrix = mult(rotationMatrix, rotateZ(-0.05));
 var render = function() {
+    gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
-    modelViewMatrix = rotate(theta[Base], 0, 1, 0 );
-    
-    gl.bindBuffer( gl.ARRAY_BUFFER, cylinderVBuffer );
-    gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, gl.FALSE, 0, 0);
+    // Light Position
+    gl.uniform3f(gl.getUniformLocation(program, "lightPosition"), lightPosition[0], lightPosition[1], lightPosition[2]);
+    // Reflection Coefficients.
+    gl.uniform1f(gl.getUniformLocation(program, "Ka"), KaVal);
+    gl.uniform1f(gl.getUniformLocation(program, "Ks"), KsVal);
+    gl.uniform1f(gl.getUniformLocation(program, "Kd"), KdVal);
+    // Ambient Color Should be black
+    gl.uniform3f(gl.getUniformLocation(program, "ambientColor"), ambientColor[0], ambientColor[1], ambientColor[2]);
+    // Specular Color Should be white
+    gl.uniform3f(gl.getUniformLocation(program, "specularColor"), specularColor[0], specularColor[1], specularColor[2]);
+    // Shininess
+    gl.uniform1f(gl.getUniformLocation(program, "shininess"), shininess);
 
-    gl.bindBuffer( gl.ARRAY_BUFFER, cylinderCBuffer );
-    gl.vertexAttribPointer(vColor, 4, gl.FLOAT, gl.FALSE, 0, 0);
+    gl.uniformMatrix4fv( gl.getUniformLocation(program, "projectionMatrix"),  false, flatten(projectionMatrix) );
+
+    modelViewMatrix = mult(modelViewMatrix, rotationMatrix);
+    normMatrix = normalMatrix(modelViewMatrix, false);
+    gl.uniformMatrix4fv( normMatrixLoc,  false, flatten(normMatrix) );
+
     base();
-    gl.bindBuffer( gl.ARRAY_BUFFER, cubeVBuffer );
-    gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, gl.FALSE, 0, 0);
 
-    gl.bindBuffer( gl.ARRAY_BUFFER, cubeCBuffer );
-    gl.vertexAttribPointer(vColor, 4, gl.FLOAT, gl.FALSE, 0, 0);
-
+/**
     modelViewMatrix = mult(modelViewMatrix, translate(0.0, BASE_HEIGHT, 0.0));
     modelViewMatrix = mult(modelViewMatrix, rotate(theta[LowerArm], 0, 0, 1 ));
+    normMatrix = normalMatrix(modelViewMatrix, false);
+    //console.log(normMatrix);
+    gl.uniformMatrix4fv( normMatrixLoc,  false, flatten(normMatrix) );
     lowerArm();
 
     modelViewMatrix  = mult(modelViewMatrix, translate(0.0, LOWER_ARM_HEIGHT, 0.0));
     modelViewMatrix  = mult(modelViewMatrix, rotate(theta[UpperArm], 0, 0, 1) );
-    upperArm();
+    normMatrix = normalMatrix(modelViewMatrix, false);
+    //console.log(normMatrix);
+    gl.uniformMatrix4fv( normMatrixLoc,  false, flatten(normMatrix) );
+    upperArm(); **/
 
     requestAnimationFrame(render);
 }
 requestAnimationFrame(render);
+
+var changeView = function(){
+    if(topView){
+        topView = false;
+    }else{
+        topView = true;
+    }
+}
