@@ -1,0 +1,118 @@
+jacky@RainySnow:~$ ifconfig
+eno2: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 192.168.0.19  netmask 255.255.255.0  broadcast 192.168.0.255
+        inet6 fd00:f0f2:4964:ac42:9588:899:c482:316c  prefixlen 64  scopeid 0x0<global>
+        inet6 fd00:f0f2:4964:ac42:d41:35cf:7281:3ddb  prefixlen 64  scopeid 0x0<global>
+        inet6 fe80::22f0:8dbf:58ed:bd31  prefixlen 64  scopeid 0x20<link>
+        ether 04:92:26:c1:fc:43  txqueuelen 1000  (Ethernet)
+        RX packets 148544  bytes 195757068 (195.7 MB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 51523  bytes 5308780 (5.3 MB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+        device interrupt 16  memory 0xa4200000-a4220000  
+
+enxe415f6f4863a: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 192.168.7.1  netmask 255.255.255.252  broadcast 192.168.7.3
+        inet6 fe80::baf3:d179:c5f8:2f37  prefixlen 64  scopeid 0x20<link>
+        ether e4:15:f6:f4:86:3a  txqueuelen 1000  (Ethernet)
+        RX packets 1029  bytes 112227 (112.2 KB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 1696  bytes 250797 (250.7 KB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+enxe415f6f4863d: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 192.168.6.1  netmask 255.255.255.252  broadcast 192.168.6.3
+        inet6 fe80::d1c8:769d:fc83:1c05  prefixlen 64  scopeid 0x20<link>
+        ether e4:15:f6:f4:86:3d  txqueuelen 1000  (Ethernet)
+        RX packets 181  bytes 25321 (25.3 KB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 342  bytes 43028 (43.0 KB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
+        inet 127.0.0.1  netmask 255.0.0.0
+        inet6 ::1  prefixlen 128  scopeid 0x10<host>
+        loop  txqueuelen 1000  (Local Loopback)
+        RX packets 2222  bytes 226782 (226.7 KB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 2222  bytes 226782 (226.7 KB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+wlo1: flags=4099<UP,BROADCAST,MULTICAST>  mtu 1500
+        ether 48:a4:72:42:52:c5  txqueuelen 1000  (Ethernet)
+        RX packets 0  bytes 0 (0.0 B)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 0  bytes 0 (0.0 B)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+jacky@RainySnow:~$ ping 192.168.7.2
+PING 192.168.7.2 (192.168.7.2) 56(84) bytes of data.
+64 bytes from 192.168.7.2: icmp_seq=1 ttl=64 time=0.645 ms
+64 bytes from 192.168.7.2: icmp_seq=2 ttl=64 time=0.563 ms
+64 bytes from 192.168.7.2: icmp_seq=3 ttl=64 time=0.584 ms
+64 bytes from 192.168.7.2: icmp_seq=4 ttl=64 time=0.599 ms
+64 bytes from 192.168.7.2: icmp_seq=5 ttl=64 time=0.621 ms
+64 bytes from 192.168.7.2: icmp_seq=6 ttl=64 time=0.577 ms
+^C
+--- 192.168.7.2 ping statistics ---
+6 packets transmitted, 6 received, 0% packet loss, time 5099ms
+rtt min/avg/max/mdev = 0.563/0.598/0.645/0.027 ms
+jacky@RainySnow:~$ ssh debian@192.168.7.2
+debian@192.168.7.2's password: 
+Permission denied, please try again.
+debian@192.168.7.2's password: 
+Linux beaglebone 4.9.78-ti-r94 #1 SMP PREEMPT Fri Jan 26 21:26:24 UTC 2018 armv7l
+
+The programs included with the Debian GNU/Linux system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+permitted by applicable law.
+Last login: Sat Jan 23 01:35:13 2021
+debian@beaglebone:~$ /proc
+-bash: /proc: Is a directory
+debian@beaglebone:~$ ls /proc
+1     1133  1446  2453  29  71         config.gz    keys          scsi
+10    1134  16    2462  3   73         consoles     key-users     self
+100   1135  17    2463  30  74         cpu          kmsg          slabinfo
+1004  1136  175   2476  31  75         cpuinfo      kpagecgroup   softirqs
+1005  1138  18    2477  32  8          crypto       kpagecount    stat
+101   1142  19    2490  33  89         devices      kpageflags    swaps
+102   12    2     25    34  9          device-tree  loadavg       sys
+1034  1230  20    2519  35  90         diskstats    locks         sysrq-trigger
+1040  1250  21    2526  36  91         driver       meminfo       sysvipc
+1058  1254  22    2535  37  93         execdomains  misc          thread-self
+106   1265  23    2544  38  95         fb           modules       timer_list
+107   13    24    2548  5   96         filesystems  mounts        timer_stats
+1080  1310  2410  2554  6   apm        fs           mtd           tty
+1084  1313  2432  2555  67  asound     interrupts   net           uptime
+11    1314  2434  2565  68  buddyinfo  iomem        pagetypeinfo  version
+1128  1368  2435  26    69  bus        ioports      partitions    vmallocinfo
+1130  14    2443  27    7   cgroups    irq          sched_debug   vmstat
+1132  1435  2444  28    70  cmdline    kallsyms     schedstat     zoneinfo
+debian@beaglebone:/$ cat version
+cat: version: No such file or directory
+debian@beaglebone:/$ cd /proc
+debian@beaglebone:/proc$ cat version
+Linux version 4.9.78-ti-r94 (root@b2-am57xx-beagle-x15-2gb) (gcc version 6.3.0 20170516 (Debian 6.3.0-18) ) #1 SMP PREEMPT Fri Jan 26 21:26:24 UTC 2018
+debian@beaglebone:/proc$ cat uptime
+2784.06 2685.00
+debian@beaglebone:/proc$ cat cpuinfo
+processor	: 0
+model name	: ARMv7 Processor rev 2 (v7l)
+BogoMIPS	: 995.32
+Features	: half thumb fastmult vfp edsp thumbee neon vfpv3 tls vfpd32 
+CPU implementer	: 0x41
+CPU architecture: 7
+CPU variant	: 0x3
+CPU part	: 0xc08
+CPU revision	: 2
+
+Hardware	: Generic AM33XX (Flattened Device Tree)
+Revision	: 0000
+Serial		: 0000000000000000
+debian@beaglebone:/proc$ exit
+logout
+Connection to 192.168.7.2 closed.
+jacky@RainySnow:

@@ -1,0 +1,244 @@
+jacky@RainySnow:~/cmpt433/public/myApps$ gdb-multiarch app
+GNU gdb (Ubuntu 9.2-0ubuntu1~20.04) 9.2
+Copyright (C) 2020 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+Type "show copying" and "show warranty" for details.
+This GDB was configured as "x86_64-linux-gnu".
+Type "show configuration" for configuration details.
+For bug reporting instructions, please see:
+<http://www.gnu.org/software/gdb/bugs/>.
+Find the GDB manual and other documentation resources online at:
+    <http://www.gnu.org/software/gdb/documentation/>.
+
+For help, type "help".
+Type "apropos word" to search for commands related to "word"...
+Reading symbols from app...
+(gdb) target remote 192.168.7.2:2001
+Remote debugging using 192.168.7.2:2001
+Reading /lib/ld-linux-armhf.so.3 from remote target...
+warning: File transfers from remote targets can be slow. Use "set sysroot" to access files locally instead.
+Reading /lib/ld-linux-armhf.so.3 from remote target...
+Reading symbols from target:/lib/ld-linux-armhf.so.3...
+Reading /lib/70015c44595ec80804b8d64a043df0d899dfae.debug from remote target...
+Reading /lib/.debug/70015c44595ec80804b8d64a043df0d899dfae.debug from remote target...
+Reading /usr/lib/debug//lib/70015c44595ec80804b8d64a043df0d899dfae.debug from remote target...
+Reading /usr/lib/debug/lib//70015c44595ec80804b8d64a043df0d899dfae.debug from remote target...
+Reading target:/usr/lib/debug/lib//70015c44595ec80804b8d64a043df0d899dfae.debug from remote target...
+(No debugging symbols found in target:/lib/ld-linux-armhf.so.3)
+0xb6fd7980 in ?? () from target:/lib/ld-linux-armhf.so.3
+(gdb) break noworky.c: 72
+Breakpoint 1 at 0x4006e8: file noworky.c, line 72.
+(gdb) break noworky.c: 29
+Breakpoint 2 at 0x4005d8: file noworky.c, line 29.
+(gdb) continue
+Continuing.
+Reading /lib/arm-linux-gnueabihf/libc.so.6 from remote target...
+Reading /lib/arm-linux-gnueabihf/56da1a1f1ec6abc2396f88e61efb139d91c6dc.debug from remote target...
+Reading /lib/arm-linux-gnueabihf/.debug/56da1a1f1ec6abc2396f88e61efb139d91c6dc.debug from remote target...
+Reading /usr/lib/debug//lib/arm-linux-gnueabihf/56da1a1f1ec6abc2396f88e61efb139d91c6dc.debug from remote target...
+Reading /usr/lib/debug/lib/arm-linux-gnueabihf//56da1a1f1ec6abc2396f88e61efb139d91c6dc.debug from remote target...
+Reading target:/usr/lib/debug/lib/arm-linux-gnueabihf//56da1a1f1ec6abc2396f88e61efb139d91c6dc.debug from remote target...
+
+Breakpoint 1, main () at noworky.c:72
+72              tradeArrays(source, target, NUM_ELEMENTS);
+(gdb) continue
+Continuing.
+
+Breakpoint 2, tradeArrays (array1=0x412410, array2=0x412468, size=10) at noworky.c:29
+29                      swapContent(array1+i, array2+i);
+(gdb) print i
+$1 = 9
+(gdb) list
+24       */
+25      void tradeArrays(double *array1, double *array2, int size)
+26      {
+27              unsigned int i;
+28              for (i = size-1; i >= 0; i--) {
+29                      swapContent(array1+i, array2+i);
+30              }
+31      }
+32
+33      /*
+(gdb) step
+swapContent (d1=0x412458, d2=0x4124b0) at noworky.c:17
+17              double tmp = *d2;
+(gdb) list
+12      /*
+13       * Swap the contents of the two pointer arguments.
+14       */
+15      void swapContent(double *d1, double *d2)
+16      {
+17              double tmp = *d2;
+18              *d2 = *d1;
+19              *d1 = tmp;
+20      }
+21
+(gdb) step
+18              *d2 = *d1;
+(gdb) step
+19              *d1 = tmp;
+(gdb) step
+20      }
+(gdb) bt
+#0  swapContent (d1=0x412458, d2=0x4124b0) at noworky.c:20
+#1  0x004005ee in tradeArrays (array1=0x412410, array2=0x412468, size=10) at noworky.c:29
+#2  0x004006f2 in main () at noworky.c:72
+(gdb) print *d1
+$2 = 90
+(gdb) print *d2
+$3 = 18
+(gdb) contine
+Undefined command: "contine".  Try "help".
+(gdb) continue
+Continuing.
+
+Breakpoint 2, tradeArrays (array1=0x412410, array2=0x412468, size=10) at noworky.c:29
+29                      swapContent(array1+i, array2+i);
+(gdb) printi
+Undefined command: "printi".  Try "help".
+(gdb) print i
+$4 = 8
+(gdb) continue
+Continuing.
+
+Breakpoint 2, tradeArrays (array1=0x412410, array2=0x412468, size=10) at noworky.c:29
+29                      swapContent(array1+i, array2+i);
+(gdb) continue
+Continuing.
+
+Breakpoint 2, tradeArrays (array1=0x412410, array2=0x412468, size=10) at noworky.c:29
+29                      swapContent(array1+i, array2+i);
+(gdb) continue
+Continuing.
+
+Breakpoint 2, tradeArrays (array1=0x412410, array2=0x412468, size=10) at noworky.c:29
+29                      swapContent(array1+i, array2+i);
+(gdb) continue
+Continuing.
+
+Breakpoint 2, tradeArrays (array1=0x412410, array2=0x412468, size=10) at noworky.c:29
+29                      swapContent(array1+i, array2+i);
+(gdb) continue
+Continuing.
+
+Breakpoint 2, tradeArrays (array1=0x412410, array2=0x412468, size=10) at noworky.c:29
+29                      swapContent(array1+i, array2+i);
+(gdb) continue
+Continuing.
+
+Breakpoint 2, tradeArrays (array1=0x412410, array2=0x412468, size=10) at noworky.c:29
+29                      swapContent(array1+i, array2+i);
+(gdb) continue
+Continuing.
+
+Breakpoint 2, tradeArrays (array1=0x412410, array2=0x412468, size=10) at noworky.c:29
+29                      swapContent(array1+i, array2+i);
+(gdb) print i
+$5 = 1
+(gdb) continue
+Continuing.
+
+Breakpoint 2, tradeArrays (array1=0x412410, array2=0x412468, size=10) at noworky.c:29
+29                      swapContent(array1+i, array2+i);
+(gdb) print i
+$6 = 0
+(gdb) step
+swapContent (d1=0x412410, d2=0x412468) at noworky.c:17
+17              double tmp = *d2;
+(gdb) step
+18              *d2 = *d1;
+(gdb) step
+19              *d1 = tmp;
+(gdb) step
+20      }
+(gdb) bt
+#0  swapContent (d1=0x412410, d2=0x412468) at noworky.c:20
+#1  0x004005ee in tradeArrays (array1=0x412410, array2=0x412468, size=10) at noworky.c:29
+#2  0x004006f2 in main () at noworky.c:72
+(gdb) print *d1
+$7 = 0
+(gdb) print *d2
+$8 = 0
+(gdb) contine
+Undefined command: "contine".  Try "help".
+(gdb) continue
+Continuing.
+
+Breakpoint 2, tradeArrays (array1=0x412410, array2=0x412468, size=10) at noworky.c:29
+29                      swapContent(array1+i, array2+i);
+(gdb) print i
+$9 = 4294967295
+(gdb) bt
+#0  tradeArrays (array1=0x412410, array2=0x412468, size=10) at noworky.c:29
+#1  0x004006f2 in main () at noworky.c:72
+(gdb) continue
+Continuing.
+
+Breakpoint 2, tradeArrays (array1=0x412410, array2=0x412468, size=10) at noworky.c:29
+29                      swapContent(array1+i, array2+i);
+(gdb) continue
+Continuing.
+
+Breakpoint 2, tradeArrays (array1=0x412410, array2=0x412468, size=10) at noworky.c:29
+29                      swapContent(array1+i, array2+i);
+(gdb) print i
+$10 = 4294967293
+(gdb) step
+swapContent (d1=0x4123f8, d2=0x412450) at noworky.c:17
+17              double tmp = *d2;
+(gdb) step
+18              *d2 = *d1;
+(gdb) step
+19              *d1 = tmp;
+(gdb) step
+20      }
+(gdb) print *d1
+$11 = 80
+(gdb) print *d2
+$12 = 0
+(gdb) up
+#1  0x004005ee in tradeArrays (array1=0x412410, array2=0x412468, size=10) at noworky.c:29
+29                      swapContent(array1+i, array2+i);
+(gdb) up
+#2  0x004006f2 in main () at noworky.c:72
+72              tradeArrays(source, target, NUM_ELEMENTS);
+(gdb) continue
+Continuing.
+
+Breakpoint 2, tradeArrays (array1=0x412410, array2=0x412468, size=10) at noworky.c:29
+29                      swapContent(array1+i, array2+i);
+(gdb) print i
+$13 = 4294967292
+(gdb) continue
+Continuing.
+
+Breakpoint 2, tradeArrays (array1=0x412410, array2=0x412468, size=10) at noworky.c:29
+29                      swapContent(array1+i, array2+i);
+(gdb) continue
+Continuing.
+
+Breakpoint 2, tradeArrays (array1=0x412410, array2=0x412468, size=10) at noworky.c:29
+29                      swapContent(array1+i, array2+i);
+(gdb) delete 2
+(gdb) continue
+Continuing.
+
+Program received signal SIGSEGV, Segmentation fault.
+0x004005b6 in swapContent (d1=0x410ff8, d2=0x411050) at noworky.c:19
+19              *d1 = tmp;
+(gdb) up
+#1  0x004005ee in tradeArrays (array1=0x412410, array2=0x412468, size=10) at noworky.c:29
+29                      swapContent(array1+i, array2+i);
+(gdb) print i
+$14 = 4294966653
+(gdb) print *d1
+No symbol "d1" in current context.
+(gdb) down
+#0  0x004005b6 in swapContent (d1=0x410ff8, d2=0x411050) at noworky.c:19
+19              *d1 = tmp;
+(gdb) print *d1
+$15 = 2.073060418763849e-317
+(gdb) print *d2
+$16 = 2.073060418763849e-317
